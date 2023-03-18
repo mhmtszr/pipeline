@@ -4,6 +4,6 @@ type Pipeline[K any] struct {
 	stepDelegate StepDelegate[K]
 }
 
-func (t Pipeline[K]) execute(context K) {
+func (t Pipeline[K]) Execute(context K) {
 	t.stepDelegate(context)
 }
