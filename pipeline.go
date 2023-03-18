@@ -1,9 +1,9 @@
 package pipeline
 
 type Pipeline[K any] struct {
-	pipelineStepDelegate PipelineStepDelegate[K]
+	stepDelegate StepDelegate[K]
 }
 
 func (t Pipeline[K]) execute(context K) {
-	t.pipelineStepDelegate(context)
+	t.stepDelegate(context)
 }

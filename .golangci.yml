@@ -31,7 +31,6 @@ linters:
     - typecheck
     - unconvert
     - unparam
-    - unused
     - whitespace
 
 service:
