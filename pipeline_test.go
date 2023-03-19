@@ -4,8 +4,10 @@ import (
 	"testing"
 )
 
-type Square struct{}
-type Add struct{}
+type (
+	Square struct{}
+	Add    struct{}
+)
 
 func (s Square) Execute(context *int, next func(context *int)) {
 	*context = (*context) * (*context)
