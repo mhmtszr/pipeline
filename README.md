@@ -43,8 +43,8 @@ func main() {
 
 ```
 
-[doc-img]: https://godoc.org/mhmtszr/pipeline?status.svg
-[doc]: https://godoc.org/mhmtszr/pipeline
+[doc-img]: https://godoc.org/github.com/mhmtszr/pipeline?status.svg
+[doc]: https://godoc.org/github.com/mhmtszr/pipeline
 [ci-img]: https://github.com/mhmtszr/pipeline/actions/workflows/build-test.yml/badge.svg
 [ci]: https://github.com/mhmtszr/pipeline/actions/workflows/build-test.yml
 [cov-img]: https://codecov.io/gh/mhmtszr/pipeline/branch/master/graph/badge.svg
