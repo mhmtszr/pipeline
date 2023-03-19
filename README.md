@@ -1,4 +1,4 @@
-# Pipeline
+# Pipeline [![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Go Report Card][go-report-img]][go-report]
 
 Go pipeline solution that can be used in many different combinations for chaining pipeline steps.
 
@@ -42,4 +42,13 @@ func main() {
 // After second chain context: 18
 
 ```
+
+[doc-img]: https://godoc.org/mhmtszr/pipeline?status.svg
+[doc]: https://godoc.org/mhmtszr/pipeline
+[ci-img]: https://github.com/mhmtszr/pipeline/actions/workflows/build-test.yml/badge.svg
+[ci]: https://github.com/mhmtszr/pipeline/actions/workflows/build-test.yml
+[cov-img]: https://codecov.io/gh/mhmtszr/pipeline/branch/master/graph/badge.svg
+[cov]: https://codecov.io/gh/mhmtszr/pipeline
+[go-report-img]: https://goreportcard.com/badge/github.com/mhmtszr/pipeline
+[go-report]: https://goreportcard.com/report/github.com/mhmtszr/pipeline
 
