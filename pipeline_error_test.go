@@ -2,8 +2,9 @@ package pipeline_test
 
 import (
 	"fmt"
-	"github.com/mhmtszr/pipeline"
 	"testing"
+
+	"github.com/mhmtszr/pipeline"
 )
 
 type (

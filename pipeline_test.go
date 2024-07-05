@@ -1,8 +1,9 @@
 package pipeline_test
 
 import (
-	"github.com/mhmtszr/pipeline"
 	"testing"
+
+	"github.com/mhmtszr/pipeline"
 )
 
 type (
