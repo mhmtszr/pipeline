@@ -5,7 +5,7 @@ type Builder[K any] struct {
 }
 
 func (t Builder[K]) Build() Pipeline[K] {
-	var step StepDelegate[K] = func(context K) error {
+	var step StepDelegate[K] = func(_ K) error {
 		return nil
 	}
 	for i := len(t.steps) - 1; i >= 0; i-- {

@@ -25,7 +25,10 @@ func TestPipeline(t *testing.T) {
 	p := pipeline.Builder[*int]{}.UsePipelineStep(Square{}).UsePipelineStep(Add{}).Build()
 	nm := 3
 	want := 18
-	p.Execute(&nm)
+	err := p.Execute(&nm)
+	if err != nil {
+		t.Errorf("got error %s", err.Error())
+	}
 
 	if nm != 18 {
 		t.Errorf("got %d, wanted %d", nm, want)

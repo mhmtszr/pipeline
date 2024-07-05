@@ -16,7 +16,7 @@ func (s SuccessStep) Execute(context *int, next func(context *int) error) error 
 	return next(context)
 }
 
-func (e ErrorStep) Execute(context *int, next func(context *int) error) error {
+func (e ErrorStep) Execute(_ *int, _ func(context *int) error) error {
 	return fmt.Errorf("errorstep error")
 }
 
