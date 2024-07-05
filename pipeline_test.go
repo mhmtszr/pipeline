@@ -1,6 +1,7 @@
-package pipeline
+package pipeline_test
 
 import (
+	"github.com/mhmtszr/pipeline"
 	"testing"
 )
 
@@ -9,18 +10,18 @@ type (
 	Add    struct{}
 )
 
-func (s Square) Execute(context *int, next func(context *int)) {
+func (s Square) Execute(context *int, next func(context *int) error) error {
 	*context = (*context) * (*context)
-	next(context)
+	return next(context)
 }
 
-func (a Add) Execute(context *int, next func(context *int)) {
+func (a Add) Execute(context *int, next func(context *int) error) error {
 	*context = (*context) + (*context)
-	next(context)
+	return next(context)
 }
 
 func TestPipeline(t *testing.T) {
-	p := Builder[*int]{}.UsePipelineStep(Square{}).UsePipelineStep(Add{}).Build()
+	p := pipeline.Builder[*int]{}.UsePipelineStep(Square{}).UsePipelineStep(Add{}).Build()
 	nm := 3
 	want := 18
 	p.Execute(&nm)
