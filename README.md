@@ -25,20 +25,20 @@ import (
 type Square struct{}
 type Add struct{}
 
-func (s Square) Execute(context int, next func(context int)) {
+func (s Square) Execute(context int, next func(context int)) error {
 	context = context * context
 	println(fmt.Sprintf("After first chain context: %d", context))
-	next(context)
+	return next(context)
 }
 
 func (a Add) Execute(context int, next func(context int)) {
 	context = context + context
 	println(fmt.Sprintf("After second chain context: %d", context))
-	next(context)
+	return next(context)
 }
 
 func main() {
-	p := pipeline.Builder[int]{}.UsePipelineStep(Square{}).UsePipelineStep(Add{}).Build()
+	p, _ := pipeline.Builder[int]{}.UsePipelineStep(Square{}).UsePipelineStep(Add{}).Build()
 	p.Execute(3)
 }
 // After first chain context: 9
