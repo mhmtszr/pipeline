@@ -2,9 +2,10 @@ package pipeline_test
 
 import (
 	"fmt"
-	"github.com/mhmtszr/pipeline"
 	"sync/atomic"
 	"testing"
+
+	"github.com/mhmtszr/pipeline"
 )
 
 type (
@@ -18,11 +19,11 @@ func (s Square) Execute(context *int, next func(context *int) error) error {
 	return next(context)
 }
 
-func (m Multiply) Execute(context *int, next func(context *int) error) error {
+func (m Multiply) Execute(_ *int, _ func(context *int) error) error {
 	return fmt.Errorf("multiplyStepError")
 }
 
-func (s Square) ConcurrentExecute(context *atomic.Uint64) error {
+func (s Square) ConcurrentExecute(_ *atomic.Uint64) error {
 	return fmt.Errorf("errorTest")
 }
 

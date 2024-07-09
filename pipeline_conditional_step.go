@@ -8,11 +8,11 @@ type ConditionalStep[K any] struct {
 	falsePipeline Pipeline[K]
 }
 
-var conditionNotFound = errors.New("condition not found in conditional step")
+var errConditionNotFound = errors.New("condition not found in conditional step")
 
 func (c ConditionalStep[K]) Execute(context K, next func(context K) error) error {
 	if c.condition == nil {
-		return conditionNotFound
+		return errConditionNotFound
 	}
 
 	var err error
