@@ -50,24 +50,24 @@ func main() {
 
 ``` go
 p := pipeline.Builder[*int]{}.
-		UseConditionalStepBuilder(
-			pipeline.NewConditionalStepBuilder[*int]().
-				Condition(func(context *int) bool {
-					return *context == 3
-				}).
-				IfTrue(Square{}).
-				IfFalse(Add{}),
-		).UsePipelineStep(Add{}).Build()
+	UseConditionalStepBuilder(
+		pipeline.NewConditionalStepBuilder[*int]().
+			Condition(func(context *int) bool {
+				return *context == 3
+			}).
+			IfTrue(Square{}).
+			IfFalse(Add{}),
+	).UsePipelineStep(Add{}).Build()
 		
-	nm := 3
-	_ = p.Execute(&nm)
+nm := 3
+_ = p.Execute(&nm)
 
-	// nm 18
+// nm 18
 
-	nm = 4
-	_ = p.Execute(&nm)
+nm = 4
+_ = p.Execute(&nm)
 
-	// nm 16
+// nm 16
 ```
 [doc-img]: https://godoc.org/github.com/mhmtszr/pipeline?status.svg
 [doc]: https://godoc.org/github.com/mhmtszr/pipeline
