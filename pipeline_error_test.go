@@ -7,25 +7,23 @@ import (
 	"github.com/mhmtszr/pipeline"
 )
 
-type (
-	SuccessStep struct{}
-	ErrorStep   struct{}
-)
-
-func (s SuccessStep) Execute(context *int, next func(context *int) error) error {
-	return next(context)
+func successStep(ctx *int, next func(*int) error) error {
+	return next(ctx)
 }
 
-func (e ErrorStep) Execute(_ *int, _ func(context *int) error) error {
+func errorStep(_ *int, _ func(*int) error) error {
 	return fmt.Errorf("errorstep error")
 }
 
 func TestErrorPipeline(t *testing.T) {
-	p := pipeline.Builder[*int]{}.UsePipelineStep(SuccessStep{}).UsePipelineStep(ErrorStep{}).Build()
+	p := pipeline.NewBuilder[*int]().Use(successStep).Use(errorStep).Build()
 	nm := 3
+	wantErr := "errorstep error"
 	err := p.Execute(&nm)
-	if err != nil && err.Error() == "errorstep error" {
-		return
+	if err == nil {
+		t.Fatal("expected error, got nil")
 	}
-	t.Errorf("error step should return error")
+	if err.Error() != wantErr {
+		t.Errorf("got %s, wanted %s", err.Error(), wantErr)
+	}
 }

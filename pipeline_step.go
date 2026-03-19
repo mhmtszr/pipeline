@@ -1,11 +1,4 @@
 package pipeline
 
-type StepDelegate[K any] func(context K) error
-
-type Step[K any] interface {
-	Execute(context K, next func(context K) error) error
-}
-
-type ConcurrentStep[K any] interface {
-	ConcurrentExecute(context K) error
-}
+// StepFunc represents a pipeline step that receives context and a next function.
+type StepFunc[K any] func(ctx K, next func(K) error) error

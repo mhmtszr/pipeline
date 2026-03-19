@@ -3,51 +3,62 @@ package pipeline
 import "golang.org/x/sync/errgroup"
 
 type Builder[K any] struct {
-	steps []func(next StepDelegate[K]) StepDelegate[K]
+	steps []StepFunc[K]
 }
 
-func (t Builder[K]) Build() Pipeline[K] {
-	var step StepDelegate[K] = func(_ K) error {
-		return nil
-	}
-	for i := len(t.steps) - 1; i >= 0; i-- {
-		step = t.steps[i](step)
-	}
-	return Pipeline[K]{
-		stepDelegate: step,
-	}
+func NewBuilder[K any]() *Builder[K] {
+	return &Builder[K]{}
 }
 
-func (t Builder[K]) UsePipelineStep(step Step[K]) Builder[K] {
-	t.steps = append(t.steps, func(next StepDelegate[K]) StepDelegate[K] {
-		return func(context K) error {
-			return step.Execute(context, next)
+func (b *Builder[K]) Use(step StepFunc[K]) *Builder[K] {
+	b.steps = append(b.steps, step)
+	return b
+}
+
+func (b *Builder[K]) UseConcurrent(steps ...func(K) error) *Builder[K] {
+	b.steps = append(b.steps, func(ctx K, next func(K) error) error {
+		var eg errgroup.Group
+		for _, s := range steps {
+			eg.Go(func() error { return s(ctx) })
 		}
-	})
-	return t
-}
-
-func (t Builder[K]) UseConcurrentPipelineSteps(steps ...ConcurrentStep[K]) Builder[K] {
-	t.steps = append(t.steps, func(next StepDelegate[K]) StepDelegate[K] {
-		return func(context K) error {
-			var eg errgroup.Group
-			for _, step := range steps {
-				step := step
-				eg.Go(func() error {
-					return step.ConcurrentExecute(context)
-				})
-			}
-			err := eg.Wait()
-			if err != nil {
-				return err
-			}
-			return next(context)
+		if err := eg.Wait(); err != nil {
+			return err
 		}
+		return next(ctx)
 	})
-	return t
+	return b
 }
 
-func (t Builder[K]) UseConditionalStepBuilder(builder *ConditionalStepBuilder[K]) Builder[K] {
-	t.steps = append(t.steps, builder.Build())
-	return t
+func (b *Builder[K]) UseConditional(
+	cond func(K) bool,
+	ifTrue []StepFunc[K],
+	ifFalse []StepFunc[K],
+) *Builder[K] {
+	trueH := buildChain(ifTrue)
+	falseH := buildChain(ifFalse)
+	b.steps = append(b.steps, func(ctx K, next func(K) error) error {
+		h := falseH
+		if cond(ctx) {
+			h = trueH
+		}
+		if err := h(ctx); err != nil {
+			return err
+		}
+		return next(ctx)
+	})
+	return b
+}
+
+func (b *Builder[K]) Build() Pipeline[K] {
+	return Pipeline[K]{handler: buildChain(b.steps)}
+}
+
+func buildChain[K any](steps []StepFunc[K]) func(K) error {
+	var h = func(K) error { return nil }
+	for i := len(steps) - 1; i >= 0; i-- {
+		next := h
+		step := steps[i]
+		h = func(ctx K) error { return step(ctx, next) }
+	}
+	return h
 }

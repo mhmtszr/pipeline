@@ -8,7 +8,7 @@ Go pipeline solution that can be used in many different combinations for chainin
 Inspired by [@bilal-kilic](https://github.com/bilal-kilic)'s Kotlin implementation [boru](https://github.com/Trendyol/boru).
 
 ### Usage
-Supports 1.18+ Go versions because of Go Generics
+Supports 1.22+ Go versions because of Go Generics
 ```
 go get github.com/mhmtszr/pipeline
 ```
@@ -22,52 +22,64 @@ import (
 	"github.com/mhmtszr/pipeline"
 )
 
-type Square struct{}
-type Add struct{}
-
-func (s Square) Execute(context int, next func(context int)) error {
-	context = context * context
-	println(fmt.Sprintf("After first chain context: %d", context))
-	return next(context)
+func square(ctx *int, next func(*int) error) error {
+	*ctx = (*ctx) * (*ctx)
+	fmt.Printf("After first step: %d\n", *ctx)
+	return next(ctx)
 }
 
-func (a Add) Execute(context int, next func(context int)) {
-	context = context + context
-	println(fmt.Sprintf("After second chain context: %d", context))
-	return next(context)
+func add(ctx *int, next func(*int) error) error {
+	*ctx = (*ctx) + (*ctx)
+	fmt.Printf("After second step: %d\n", *ctx)
+	return next(ctx)
 }
 
 func main() {
-	p, _ := pipeline.Builder[int]{}.UsePipelineStep(Square{}).UsePipelineStep(Add{}).Build()
-	p.Execute(3)
+	p := pipeline.NewBuilder[*int]().Use(square).Use(add).Build()
+	nm := 3
+	_ = p.Execute(&nm)
 }
-// After first chain context: 9
-// After second chain context: 18
+// After first step: 9
+// After second step: 18
+```
 
+#### Concurrent Pipeline
+
+``` go
+p := pipeline.NewBuilder[*atomic.Uint64]().
+	UseConcurrent(
+		func(ctx *atomic.Uint64) error {
+			ctx.Add(ctx.Load())
+			return nil
+		},
+		func(ctx *atomic.Uint64) error {
+			ctx.Add(ctx.Load())
+			return nil
+		},
+	).Build()
+
+var nmb atomic.Uint64
+nmb.Add(5)
+_ = p.Execute(&nmb)
 ```
 
 #### Conditional Pipeline
 
 ``` go
-p := pipeline.Builder[*int]{}.
-	UseConditionalStepBuilder(
-		pipeline.NewConditionalStepBuilder[*int]().
-			Condition(func(context *int) bool {
-				return *context == 3
-			}).
-			IfTrue(Square{}).
-			IfFalse(Add{}),
-	).UsePipelineStep(Add{}).Build()
-		
+p := pipeline.NewBuilder[*int]().
+	UseConditional(
+		func(ctx *int) bool { return *ctx == 3 },
+		[]pipeline.StepFunc[*int]{square},
+		[]pipeline.StepFunc[*int]{add},
+	).Use(add).Build()
+
 nm := 3
 _ = p.Execute(&nm)
-
-// nm 18
+// nm == 18
 
 nm = 4
 _ = p.Execute(&nm)
-
-// nm 16
+// nm == 16
 ```
 [doc-img]: https://godoc.org/github.com/mhmtszr/pipeline?status.svg
 [doc]: https://godoc.org/github.com/mhmtszr/pipeline
@@ -77,4 +89,3 @@ _ = p.Execute(&nm)
 [cov]: https://codecov.io/gh/mhmtszr/pipeline
 [go-report-img]: https://goreportcard.com/badge/github.com/mhmtszr/pipeline
 [go-report]: https://goreportcard.com/report/github.com/mhmtszr/pipeline
-
